@@ -44,6 +44,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.box = "bento/ubuntu-18.04"
   ################################################################
 
+  # To shorter timeout 300 => 120
+  config.vm.boot_timeout = 120
   # Setup machine.
   config.vm.provider "virtualbox" do |vb|
     vb.gui = true
