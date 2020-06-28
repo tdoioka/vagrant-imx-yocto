@@ -18,7 +18,7 @@ build: baseimage
 	./provision/host-setup.sh -f build
 
 export:
-	./provision/host-setup.sh finalize export
+	./provision/host-setup.sh -f finalize export
 
 all: baseimage build export
 
