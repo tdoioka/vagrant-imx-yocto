@@ -89,25 +89,27 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "file", source: "#{PROVS}/common.sh", destination: "#{PROVD}/common.sh"
   config.vm.provision "file", source: "#{PROVS}/speck.rb", destination: "#{PROVD}/speck.rb"
 
-  if "#{ENV['PRE_PROVISION']}" == "1" then
-    # Provisioning apt update and install make.
-    config.vm.provision "shell", name: "resize-part", privileged: true,
-                        path: "#{PROVS}/guest-setup-root.sh",
-                        upload_path: "#{PROVD}/provision.sh",
-                        args: [ "resize_part" ]
-    config.vm.provision :reload
-  else
-    # Setup environments.
-    config.vm.provision "shell", name: "setup-machine", privileged: true,
-                        path: "#{PROVS}/guest-setup-root.sh",
-                        upload_path: "#{PROVD}/provision.sh",
-                        args: [ "update",
-                                "setup_skel",
-                                "setup_locale",
-                                "install_desktop",
-                                "install_yocto_require",
-                                "add_user",
-                              ]
+  if "#{ENV['NO_PROVISION']}" == "" then
+    if "#{ENV['EXPAND_PART']}" == "1" then
+      # Provisioning apt update and install make.
+      config.vm.provision "shell", name: "resize-part", privileged: true,
+                          path: "#{PROVS}/guest-setup-root.sh",
+                          upload_path: "#{PROVD}/provision.sh",
+                          args: [ "expand_part" ]
+      config.vm.provision :reload
+    else
+      # Setup environments.
+      config.vm.provision "shell", name: "setup-machine", privileged: true,
+                          path: "#{PROVS}/guest-setup-root.sh",
+                          upload_path: "#{PROVD}/provision.sh",
+                          args: [ "update",
+                                  "setup_skel",
+                                  "setup_locale",
+                                  "install_desktop",
+                                  "install_yocto_require",
+                                  "add_user",
+                                ]
+    end
     # Customize build.
     if "#{ENV['BUILD']}" == "1" then
       config.vm.provision "shell", name: "build", privileged: true,

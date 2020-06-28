@@ -20,9 +20,8 @@ _sync_sleep() {
   sleep 5
 }
 
-resize_part() {
+expand_part() {
   err "Begin resize HDD to run level 1..."
-  init 1
   local dev_num=$(mount | grep -e ' / ' | awk '{print $1}')
   local dm_name=
   if echo $dev_num | grep -q /dev/mapper; then
@@ -37,11 +36,8 @@ resize_part() {
   local part=$(echo $dev_num | sed -e "s@^${dev}@@")
 
   err "Resize partition..."
-  parted -s $dev << __eof__
-resizepart
-$part
-100%
-__eof__
+  lsblk
+  growpart $dev $part || true
   if [[ -n "$dm_name" ]]; then
     pvresize $dev_num
     if ! lvextend -l +100%FREE $dm_name; then
@@ -50,6 +46,7 @@ __eof__
     fi
   fi
   resize2fs ${dm_name:-$dev_num}
+  lsblk
 
   err "Run check disk ..."
   for dd in ${dev}*; do

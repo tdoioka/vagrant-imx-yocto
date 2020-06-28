@@ -9,7 +9,7 @@ plugin:
 	./provision/host-setup.sh plugin
 
 preimage: plugin
-	./provision/host-setup.sh pre_provision expand_part
+	./provision/host-setup.sh pre_provision expand_disk expand_part
 
 baseimage: preimage
 	./provision/host-setup.sh -f provision

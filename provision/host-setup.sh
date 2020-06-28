@@ -26,14 +26,14 @@ _vagrant_status() {
 pre_provision() {
   local status=$(_vagrant_status)
   if [[ "$status" == "not_created" ]]; then
-    PRE_PROVISION=1 vagrant up --no-provision
+    NO_PROVISION=1 vagrant up --provision
   fi
   if [[ "$status" == "not_created" ]] || [[ "$status" == "running" ]]; then
     vagrant halt
   fi
 }
 
-expand_part() {
+expand_disk() {
   local hddinfo=$($vbox showvminfo ${VMC_NAME} |
                     grep -e '\(\.vmdk\|\.vdi\) ')
   [[ -n "$hddinfo" ]] || return 1
@@ -71,6 +71,14 @@ expand_part() {
     # $vbox storagectl "${VMC_NAME}" --name "${ctrl}" --hostiocache off
     $vbox closemedium disk "$spath" --delete
   fi
+}
+
+expand_part() {
+  local status=$(_vagrant_status)
+  case "$status" in
+    "running")  EXPAND_PART=1 vagrant provision ;;
+    *)          EXPAND_PART=1 vagrant up --provision ;;
+  esac
 }
 
 provision() {
