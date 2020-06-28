@@ -67,7 +67,8 @@ expand_part() {
     $vbox clonehd "$spath" "$dpath" --format VDI
     $vbox modifyhd "$dpath" --resize $((${VMC_HDD}*1024))
     $vbox storageattach "${VMC_NAME}" --storagectl "${ctrl}" \
-                --port ${port} --device ${device} --medium "$dpath"
+          --port ${port} --device ${device} --medium "$dpath"
+    # $vbox storagectl "${VMC_NAME}" --name "${ctrl}" --hostiocache off
     $vbox closemedium disk "$spath" --delete
   fi
 }

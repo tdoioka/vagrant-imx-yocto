@@ -5,17 +5,19 @@ source $(dirname $(realpath $0))/common.sh
 
 
 _sync_sleep() {
-  sync
-  local wb=""
   while true; do
-    grep -e "Dirty:" -e "Writeback:" /proc/meminfo
-    wb=$(grep -e Writeback: /proc/meminfo | awk '{print $2}')
-    if [[ "$wb" == "0" ]]; then
-      break
-    fi
+    sync
+    local info=$(grep -e "Dirty:" -e "Writeback:" /proc/meminfo)
+    err "$(echo $info)"
+    # err "Dirty:$dt Writeback:$wb"
+    local dt=$(echo $info | grep "Dirty:" | awk '{print $2}')
+    local wb=$(echo $info | grep "Writeback:" | awk '{print $2}')
+    [[ "$dt" == "0" ]] && [[ "$wb" == "0" ]] && break
     err "sync wait 5sec"
     sleep 5
   done
+  err "sync wait 5sec"
+  sleep 5
 }
 
 resize_part() {
@@ -203,5 +205,8 @@ finish() {
   _sync_sleep
 }
 
+sync_sleep() {
+  _sync_sleep
+}
 
 runall $@

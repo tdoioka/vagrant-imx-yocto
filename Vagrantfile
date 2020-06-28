@@ -65,6 +65,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                   "--nestedpaging", "on",
                   "--pae", "off",
                  ]
+    vb.customize ["storagectl", :id,
+                  "--name", "IDE Controller",
+                  "--hostiocache", "off",
+                 ]
   end
 
   # Network configulation (Need to setup).
@@ -121,5 +125,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                           upload_path: "#{PROVD}/provision.sh",
                           args: [ "finish" ]
     end
-  end  
+  end
+  # Sync for prepare power OFF.
+  config.vm.provision "shell", name: "wait-sync", privileged: true,
+                          path: "#{PROVS}/guest-setup-root.sh",
+                          upload_path: "#{PROVD}/provision.sh",
+                          args: [ "-f", "sync_sleep" ]
 end
