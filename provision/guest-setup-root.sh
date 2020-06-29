@@ -27,6 +27,7 @@ expand_part() {
   if echo $dev_num | grep -q /dev/mapper; then
     # Device mapper is used. so, detect physical volume from lvdisplay,
     # but not consider RAID.
+    dm_name=$dev_num
     dev_num=$(lvdisplay -m $dm_name |
             grep 'Physical volume' |
             head -n 1 |
@@ -37,13 +38,14 @@ expand_part() {
 
   err "Resize partition..."
   lsblk
-  growpart $dev $part || true
   if [[ -n "$dm_name" ]]; then
     pvresize $dev_num
     if ! lvextend -l +100%FREE $dm_name; then
       err "warning at $(basename $0): 'lvextend' skip partitin resize."
       return 0
     fi
+  else
+    growpart $dev $part || true
   fi
   resize2fs ${dm_name:-$dev_num}
   lsblk
