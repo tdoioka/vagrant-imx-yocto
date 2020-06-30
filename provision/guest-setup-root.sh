@@ -64,9 +64,15 @@ expand_part() {
 
 update() {
   err "package update"
+  wget -q https://www.ubuntulinux.jp/ubuntu-ja-archive-keyring.gpg -O- | apt-key add -
+  wget -q https://www.ubuntulinux.jp/ubuntu-jp-ppa-keyring.gpg -O- | apt-key add -
+  wget https://www.ubuntulinux.jp/sources.list.d/bionic.list -O /etc/apt/sources.list.d/ubuntu-ja.list
   apt-get update
-  apt-get install -y --no-install-recommends \
-          build-essential
+  apt-get upgrade -y
+  apt-get full-upgrade -y
+  apt-get autoremove -y
+  apt-get autoclean
+  apt-get clean
 }
 
 
@@ -122,13 +128,16 @@ setup_locale() {
   apt-get install -y --no-install-recommends \
           language-pack-ja-base \
           language-pack-ja \
-          ibus-mozc
+          ibus-mozc \
+          fonts-takao \
+          gkbd-capplet
 
   timedatectl set-timezone Asia/Tokyo
+  update-locale LANG=ja_JP.UTF-8 LANGUAGE="ja_JP:ja"
+  source /etc/default/locale
 
-  local skel=/etc/skel/
-  echo 'export LANG=ja_JP.UTF-8' >> $skel/.env/rc/lang.sh
-  echo 'export LANGUAGE="ja_JP:ja"' >> $skel/.env/rc/lang.sh
+  sed -ie 's@XKBMODEL.*=.*@XKBMODEL="jp106"@g' /etc/default/keyboard
+  sed -ie 's@XKBLAYOUT.*=.*@XKBLAYOUT="jp"@g' /etc/default/keyboard
 }
 
 
