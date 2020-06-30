@@ -9,15 +9,16 @@ type $vbox >&/dev/null || {
   vbox=VBoxManage.exe
 }
 
-umask 0000
+umask 0022
 
 err() {
   echo "$0 => $@" >&2
 }
 
 _cache() {
-  mkdir -p $(dirname $1) &&
-    echo $2 > $1
+  (umask 0000 &&
+     mkdir -p $(dirname $1) &&
+     echo $2 > $1)
 }
 
 _is_cached() {
